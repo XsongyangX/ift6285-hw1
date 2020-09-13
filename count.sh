@@ -34,7 +34,7 @@ do
 	if [ -d "$file" ]; then
 		continue
 	fi
-	/usr/bin/time -o "$TIME_OUTPUT" --append --format='%E' \
+	/usr/bin/time -o "$TIME_OUTPUT" --append --format='%e' \
 	       	cat $file | tr ' ' '\n' | wc -w \
 		>> "$COUNT_OUTPUT"
 done
