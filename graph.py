@@ -1,29 +1,82 @@
 #!/bin/python3
 import argparse
-
+from typing import List, TypeVar
 import matplotlib.pyplot as plt
 import numpy as np
 
-def read_file(path: str, subject='time'):
+Number = TypeVar('Number', int, float)
+
+def graph(data: List[Number], subject='count', out='graph.png'):
+    # debug info
+    print("Max value of the graph is {data_max} and data size is {data_size}."\
+        .format(data_max=data[-1], data_size=len(data)))
     
-    data = []
+    # uses matplotlib to graph
+    x = np.arange(0, len(data))
+    y = data
+    plt.plot(x,y)
+
+    # Change the text here if you wish to edit labels on the graph
+    plt.xlabel("Nombre de tranche lus")
+
+    if subject == 'count':
+        plt.ylabel("Nombre de mots")
+        plt.title("Nombre de mots en fonction du nombre de tranche lue")
+    elif subject == 'time':
+        plt.ylabel("Temps pris (s)")
+        plt.title("Temps pris en fonction du nombre de tranche lue")
+
+    plt.savefig(out)
+
+def process(data: List[Number]) -> List[Number]:
+    
+    # cumulatively sum the data
+    cum_data : List[Number] = []
+    for element in data:
+        try:
+            cum_data.append(cum_data[-1] + element)
+        except IndexError: # for the first element
+            cum_data.append(element)
+
+    return cum_data
+
+def read_file(path: str, subject: str ='count') -> List[Number]:
+    
+    data : List[Number] = []
     with open(path, 'r') as file:
         for line in file:
-            if subject == 'time':
+            line = line.strip()
+            if subject == 'count':
                 data.append(int(line))
+            elif subject == 'time':
+                data.append(float(line))
+
+    return data
 
 def main():
+    # command line interface
     parser = argparse.ArgumentParser(\
         description='Graph the log files from the counting scripts')
     
     parser.add_argument('log',\
         help='Log file to graphed.')
 
-    parser.add_argument('--time', )
+    parser.add_argument('--time', dest='subject', action='store_const',\
+        const='time', default='count',\
+            help='Makes the graph labels to be for time (default: count)')
+
+    parser.add_argument('--output', nargs='?', dest='out',\
+        help='Output picture name')
 
     args = parser.parse_args()
 
-    read_file(args.log, subject='time')
+    # data analysis
+    data = read_file(args.log, subject=args.subject)
+    data = process(data)
+    if args.out is not None:
+        graph(data, subject=args.subject, out=args.out)
+    else:
+        graph(data, subject=args.subject)
 
 if __name__ == "__main__":
     main()
