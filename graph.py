@@ -1,8 +1,11 @@
 #!/bin/python3
 import argparse
 from typing import List, TypeVar
-import matplotlib.pyplot as plt
 import numpy as np
+
+import matplotlib
+matplotlib.use('agg')
+import matplotlib.pyplot as plt
 
 Number = TypeVar('Number', int, float)
 
@@ -21,7 +24,7 @@ def graph(data: List[Number], subject='count', out='graph.png'):
 
     if subject == 'count':
         plt.ylabel("Nombre de mots")
-        plt.title("Nombre de mots en fonction du nombre de tranche lue")
+        plt.title("Nombre de mots en fonction du nombre de tranche")
     elif subject == 'time':
         plt.ylabel("Temps pris (s)")
         plt.title("Temps pris en fonction du nombre de tranche lue")
