@@ -28,6 +28,9 @@ def graph(data: List[Number], subject='count', out='graph.png'):
     elif subject == 'time':
         plt.ylabel("Temps pris (s)")
         plt.title("Temps pris en fonction du nombre de tranche lue")
+    elif subject == 'unique':
+        plt.ylabel("Nombre de mots différents")
+        plt.title("Nombre de types en fonction du nombre de tranche")
 
     plt.savefig(out)
 
@@ -49,10 +52,10 @@ def read_file(path: str, subject: str ='count') -> List[Number]:
     with open(path, 'r') as file:
         for line in file:
             line = line.strip()
-            if subject == 'count':
-                data.append(int(line))
-            elif subject == 'time':
+            if subject == 'time':
                 data.append(float(line))
+            else:
+                data.append(int(line))
 
     return data
 
@@ -67,6 +70,10 @@ def main():
     parser.add_argument('--time', dest='subject', action='store_const',\
         const='time', default='count',\
             help='Makes the graph labels to be for time (default: count)')
+
+    parser.add_argument('--unique', dest='subject', action='store_const',\
+        const='unique', default='count',\
+            help='Makes the graph labels to be about token types (default: count)')
 
     parser.add_argument('--output', nargs='?', dest='out',\
         help='Output picture name')
