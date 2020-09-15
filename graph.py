@@ -7,9 +7,9 @@ import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
-Number = TypeVar('Number', int, float)
+from numbers import Real
 
-def graph(data: List[Number], subject='count', out='graph.png'):
+def graph(data: List[Real], subject='count', out='graph.png'):
     # debug info
     print("Max value of the graph is {data_max} and data size is {data_size}."\
         .format(data_max=data[-1], data_size=len(data)))
@@ -34,10 +34,10 @@ def graph(data: List[Number], subject='count', out='graph.png'):
 
     plt.savefig(out)
 
-def process(data: List[Number]) -> List[Number]:
+def process(data: List[Real]) -> List[Real]:
     
     # cumulatively sum the data
-    cum_data : List[Number] = []
+    cum_data : List[Real] = []
     for element in data:
         try:
             cum_data.append(cum_data[-1] + element)
@@ -46,9 +46,9 @@ def process(data: List[Number]) -> List[Number]:
 
     return cum_data
 
-def read_file(path: str, subject: str ='count') -> List[Number]:
+def read_file(path: str, subject: str ='count') -> List[Real]:
     
-    data : List[Number] = []
+    data : List[Real] = []
     with open(path, 'r') as file:
         for line in file:
             line = line.strip()
@@ -67,11 +67,13 @@ def main():
     parser.add_argument('log',\
         help='Log file to graphed.')
 
-    parser.add_argument('--time', dest='subject', action='store_const',\
+    topic_group = parser.add_mutually_exclusive_group()
+
+    topic_group.add_argument('--time', dest='subject', action='store_const',\
         const='time', default='count',\
             help='Makes the graph labels to be for time (default: count)')
 
-    parser.add_argument('--unique', dest='subject', action='store_const',\
+    topic_group.add_argument('--unique', dest='subject', action='store_const',\
         const='unique', default='count',\
             help='Makes the graph labels to be about token types (default: count)')
 
