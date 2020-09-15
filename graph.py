@@ -7,9 +7,7 @@ import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
-from numbers import Real
-
-def graph(data: List[Real], subject='count', out='graph.png'):
+def graph(data: List[float], subject='count', out='graph.png'):
     # debug info
     print("Max value of the graph is {data_max} and data size is {data_size}."\
         .format(data_max=data[-1], data_size=len(data)))
@@ -34,10 +32,10 @@ def graph(data: List[Real], subject='count', out='graph.png'):
 
     plt.savefig(out)
 
-def process(data: List[Real]) -> List[Real]:
+def process(data: List[float]) -> List[float]:
     
     # cumulatively sum the data
-    cum_data : List[Real] = []
+    cum_data : List[float] = []
     for element in data:
         try:
             cum_data.append(cum_data[-1] + element)
@@ -46,9 +44,9 @@ def process(data: List[Real]) -> List[Real]:
 
     return cum_data
 
-def read_file(path: str, subject: str ='count') -> List[Real]:
+def read_file(path: str, subject: str ='count') -> List[float]:
     
-    data : List[Real] = []
+    data : List[float] = []
     with open(path, 'r') as file:
         for line in file:
             line = line.strip()
