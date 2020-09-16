@@ -11,10 +11,9 @@ import argparse
 from typing import List, Dict
 import numpy as np
 
-import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('agg')
-
+import matplotlib.pyplot as plt
 
 def graph(data: List[float], subject: Dict, out='graph.png'):
     """Generates a graph from the given data and axes labels
