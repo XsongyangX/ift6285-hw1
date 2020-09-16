@@ -2,3 +2,5 @@
 .vscode/
 *.png
 .mypy_cache/
+*.csv
+*.json
