@@ -115,11 +115,11 @@ def parse() -> argparse.Namespace:
         If so, the time is store in a file with suffix \'_time.csv\'""",\
             const=True, action='store_const', default=False)
     
-    parser.add_argument('--count',\
+    parser.add_argument('--count', metavar='log', \
         help='Name of the file (without extension) for the token type count per file (default: count_type.csv)',\
             default='count_type')
 
-    parser.add_argument('--json',\
+    parser.add_argument('--json', metavar='vocabulary',\
         help='Name of the json (without extension) of the vocabulary (default: vocabulary.json)',\
             default='vocabulary')
 

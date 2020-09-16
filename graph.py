@@ -1,92 +1,80 @@
 #!/bin/python3
 import argparse
-from typing import List, TypeVar
+from typing import List, Dict
 import numpy as np
 
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
-def graph(data: List[float], subject='count', out='graph.png'):
-    # debug info
-    print("Max value of the graph is {data_max} and data size is {data_size}."\
-        .format(data_max=data[-1], data_size=len(data)))
+import csv
+
+def graph(data: List[float], subject: Dict, out='graph.png'):
     
     # uses matplotlib to graph
     x = np.arange(0, len(data))
     y = data
     plt.plot(x,y)
 
-    # Change the text here if you wish to edit labels on the graph
-    plt.xlabel("Nombre de tranche lus")
-
-    if subject == 'count':
-        plt.ylabel("Nombre de mots")
-        plt.title("Nombre de mots en fonction du nombre de tranche")
-    elif subject == 'time':
-        plt.ylabel("Temps pris (s)")
-        plt.title("Temps pris en fonction du nombre de tranche lue")
-    elif subject == 'unique':
-        plt.ylabel("Nombre de mots différents")
-        plt.title("Nombre de types en fonction du nombre de tranche")
+    # Import labels from dictionary
+    plt.xlabel(subject['xlabel'])
+    plt.ylabel(subject['ylabel'])
+    plt.title(subject['title'])
 
     plt.savefig(out)
 
-def process(data: List[float]) -> List[float]:
-    
-    # cumulatively sum the data
-    cum_data : List[float] = []
-    for element in data:
-        try:
-            cum_data.append(cum_data[-1] + element)
-        except IndexError: # for the first element
-            cum_data.append(element)
+    # debug info
+    print("Max value of the graph is {data_max} and data size is {data_size}."\
+        .format(data_max=data[-1], data_size=len(data)))
 
-    return cum_data
-
-def read_file(path: str, subject: str ='count') -> List[float]:
+def read_file(path: str) -> List[float]:
     
     data : List[float] = []
     with open(path, 'r') as file:
-        for line in file:
-            line = line.strip()
-            if subject == 'time':
-                data.append(float(line))
-            else:
-                data.append(int(line))
+        reader = csv.reader(file, delimiter=' ', quotechar='|')
+        for row in reader:
+            head, *_ = row
+            data.append(float(head))
 
     return data
 
-def main():
+def parse() -> argparse.Namespace:
     # command line interface
     parser = argparse.ArgumentParser(\
-        description='Graph the log files from the counting scripts')
+        description='Graph the csv file made of just one column')
     
-    parser.add_argument('log',\
-        help='Log file to graphed.')
+    # csv
+    parser.add_argument('csv',\
+        help='Csv file to graphed.')
 
-    topic_group = parser.add_mutually_exclusive_group()
+    # image output
+    parser.add_argument('--image', metavar='image.png', default='graph.png',\
+        help='Output picture name (default: graph.png)')
 
-    topic_group.add_argument('--time', dest='subject', action='store_const',\
-        const='time', default='count',\
-            help='Makes the graph labels to be for time (default: count)')
-
-    topic_group.add_argument('--unique', dest='subject', action='store_const',\
-        const='unique', default='count',\
-            help='Makes the graph labels to be about token types (default: count)')
-
-    parser.add_argument('--output', nargs='?', dest='out',\
-        help='Output picture name')
+    # titles, axes labels
+    parser.add_argument('--xlabel', default='',\
+        help='Name of the x axis')
+    parser.add_argument('--ylabel', default='',\
+        help='Name of the y axis')
+    parser.add_argument('--title', default='',\
+        help='Title of the plot')
 
     args = parser.parse_args()
+    return args
 
-    # data analysis
-    data = read_file(args.log, subject=args.subject)
-    data = process(data)
-    if args.out is not None:
-        graph(data, subject=args.subject, out=args.out)
-    else:
-        graph(data, subject=args.subject)
+def main():
+    args = parse()
+
+    # read csv file
+    data = read_file(args.csv)
+
+    # produce graph
+    labels = {
+        'xlabel': args.xlabel,
+        'ylabel': args.ylabel,
+        'title': args.title
+    }
+    graph(data, subject=labels, out=args.image)
 
 if __name__ == "__main__":
     main()
