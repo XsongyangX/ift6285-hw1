@@ -1,11 +1,26 @@
-#!/bin/python3
+"""
+Count type
+
+Counts the number of tokens and types inside a given directory,
+ignoring all binary files and nested directories.
+
+Produces always one csv file that tracks the number of types compiled
+at the end of reading each file. Optionally produces an execution
+time csv file.
+
+The vocabulary of the corpus is stored in a json file, by default
+'vocabulary.json'.
+"""
 
 import argparse
-import os, sys
+import os
+import sys
 from typing import Iterator, Dict
 import subprocess
-import csv, json
+import csv
+import json
 import time
+
 
 def read_words(path: str) -> Iterator[str]:
     """Reads a file and give an iterator over its words
@@ -22,26 +37,28 @@ def read_words(path: str) -> Iterator[str]:
                 for word in line.split():
                     yield word
     except OSError as error:
-        print(error, file=sys.stderr)    
+        print(error, file=sys.stderr)
 
-def load_files(dir: str) -> Iterator[str]:
+
+def load_files(directory: str) -> Iterator[str]:
     """Returns a generator iterating on the text file names only
 
     Args:
-        dir (str): directory of interest on disk
+        path (str): directory of interest on disk
 
     Yields:
         Iterator[str]: Generator over the file names with full path
     """
-    for file in os.listdir(dir):
-        path = os.path.join(dir, file)
+    for file in os.listdir(directory):
+        path = os.path.join(directory, file)
 
         # ignore directories
         if os.path.isdir(path):
             continue
 
         # ignore binary files
-        process = subprocess.Popen(['file', '--mime', path], stdout=subprocess.PIPE, text=True)
+        process = subprocess.Popen(
+            ['file', '--mime', path], stdout=subprocess.PIPE, text=True)
         mime, error = process.communicate()
         if error is not None:
             print(error, file=sys.stderr)
@@ -49,6 +66,7 @@ def load_files(dir: str) -> Iterator[str]:
             continue
 
         yield path
+
 
 def verify(args: argparse.Namespace):
     """Checks if the given path exists
@@ -60,17 +78,23 @@ def verify(args: argparse.Namespace):
         FileNotFoundError: When the given path is not a directory
     """
     if not os.path.isdir(args.directory):
-        raise FileNotFoundError("Directory not found: {}".format(args.directory))
+        raise FileNotFoundError(
+            "Directory not found: {}".format(args.directory))
+
 
 class Log:
     """Log object controling the generation of results into files
     """
-    def __init__(self, output:str, records_time: bool=False):
+
+    def __init__(self, output: str, records_time: bool = False):
         self.__count_stream = open("{}.csv".format(output), 'w', newline='')
-        self._count = csv.writer(self.__count_stream, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        self._count = csv.writer(
+            self.__count_stream, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
         if records_time:
-            self.__time_stream = open("{}_time.csv".format(output), 'w', newline='')
-            self._time = csv.writer(self.__time_stream, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            self.__time_stream = open(
+                "{}_time.csv".format(output), 'w', newline='')
+            self._time = csv.writer(
+                self.__time_stream, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
             self._time_start = time.time()
 
     def __del__(self):
@@ -92,7 +116,8 @@ class Log:
         """
         self._count.writerow([types])
 
-    def log_vocabulary(self, vocabulary: Dict, json_name: str):
+    @staticmethod
+    def log_vocabulary(vocabulary: Dict, json_name: str):
         """Writes the vocabulary to a json file
 
         Args:
@@ -102,31 +127,38 @@ class Log:
         with open("{}.json".format(json_name), 'w') as file:
             json.dump(vocabulary, file)
 
+
 def parse() -> argparse.Namespace:
     """Parses arguments from command line
     """
-    parser = argparse.ArgumentParser(\
+    parser = argparse.ArgumentParser(
         description='Counts the number of token types in the directory\'s files')
 
-    parser.add_argument('directory', help='Directory in which to operate the counting')
+    parser.add_argument(
+        'directory', help='Directory in which to operate the counting')
 
-    parser.add_argument('--time',\
-        help="""Whether to time the counting as well. 
-        If so, the time is store in a file with suffix \'_time.csv\'""",\
-            const=True, action='store_const', default=False)
-    
-    parser.add_argument('--count', metavar='log', \
-        help='Name of the file (without extension) for the token type count per file (default: count_type.csv)',\
-            default='count_type')
+    parser.add_argument('--time',
+                        help="""Whether to time the counting as well.
+        If so, the time is store in a file with suffix \'_time.csv\'""",
+                        const=True, action='store_const', default=False)
 
-    parser.add_argument('--json', metavar='vocabulary',\
-        help='Name of the json (without extension) of the vocabulary (default: vocabulary.json)',\
-            default='vocabulary')
+    parser.add_argument('--count', metavar='log',
+                        help="""Name of the file (without extension) for
+                        the token type count per file (default: count_type.csv)""",
+                        default='count_type')
 
+    parser.add_argument('--json', metavar='vocabulary',
+                        help="""Name of the json (without extension) of the vocabulary
+                        (default: vocabulary.json)""",
+                        default='vocabulary')
 
     return parser.parse_args()
 
+
 def main():
+    """Parse arguments, load files, read and compile tokens and types
+    """
+
     args = parse()
     verify(args)
     files = load_files(args.directory)
@@ -153,17 +185,16 @@ def main():
         if args.time is True:
             log.log_time()
 
-    
     # produce a json vocabulary
     log.log_vocabulary(vocabulary=vocabulary, json_name=args.json)
 
     # final message
-    print(\
+    print(
         """Finished counting:
         {word_count} words in total
         {type_count} types in total
         """.format(word_count=count, type_count=types))
-    
+
 
 if __name__ == "__main__":
     main()
