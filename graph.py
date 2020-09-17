@@ -8,6 +8,7 @@ Arguments allow the naming of axes and titles.
 """
 import csv
 import argparse
+import math
 from typing import List, Dict
 import numpy as np
 
@@ -32,6 +33,10 @@ def graph(data: List[float], subject: Dict, out='graph.png'):
     plt.xlabel(subject['xlabel'])
     plt.ylabel(subject['ylabel'])
     plt.title(subject['title'])
+
+    # axes scaling
+    if abs(math.log10(max(y_values))) > 3:
+        plt.ticklabel_format(style='sci')
 
     plt.savefig(out)
 
