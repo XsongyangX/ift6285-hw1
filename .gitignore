@@ -10,3 +10,6 @@
 
 # archive
 *.tar.*
+
+# interactive analysis
+analysis.py
