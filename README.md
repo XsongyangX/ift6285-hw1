@@ -8,9 +8,9 @@ All scripts must be run on the DIRO machines in order to access the corpus.
 
 # Usage
 ## Counting words
-`./count.sh folder` will create two log files named `count.log` and `time.log`. Each line on the log files represents the word count and time taken to count of a file in the given folder. 
+`./count.sh` will call the `count_type.py` and `graph.py` scripts with the correct arguments for the 1B-word corpus. 
 
-`./count_type.sh folder` behaves in a similar way, but produces `count_type.log` and `time_type.log` instead. The word count is now of the token types (how many different words).
+`./count_type.py folder [options]` counts all readable non-binary files inside the folder and generates type counts, timing and vocabulary at the end. Use `-h` for help.
 
 ## Visualization
-`./graph.py` will read a given file and produce a `png` image of a graph. Use `-h` for help on how to use it.
+`./graph.py csv [options]` will read a given csv file and produce a `png` image of a graph. Use `-h` for help on how to use it.
