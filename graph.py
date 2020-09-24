@@ -25,7 +25,7 @@ def graph(data: List[float], subject: Dict, out='graph.png'):
         out (str, optional): Name of the image. Defaults to 'graph.png'.
     """
     # uses matplotlib to graph
-    x_values = np.arange(0, len(data))
+    x_values = np.arange(1, len(data) + 1)
     y_values = data
     plt.plot(x_values, y_values)
 
