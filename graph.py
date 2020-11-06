@@ -42,7 +42,7 @@ def graph(data: List[float], subject: Dict, out='graph.png'):
 
     # debug info
     print("Max value of the graph is {data_max} and data size is {data_size}."
-          .format(data_max=data[-1], data_size=len(data)))
+          .format(data_max=max(data), data_size=len(data)))
 
 
 def read_file(path: str) -> List[float]:
